@@ -1,0 +1,28 @@
+* {
+  font-family: monospace;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.dimensions {
+  width: 750px;
+  height: 500px;
+}
+
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.border-black {
+  border: black 1px solid;
+  border-radius: 15px;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+}
