@@ -26,3 +26,29 @@
   width: 100vw;
   height: 100vh;
 }
+
+.display-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.justify-content-center {
+  display: flex;
+  justify-content: center;
+}
+
+.button-container > button {
+  margin: 10px;
+}
+
+.typespace-padding {
+  padding: 20px;
+}
+
+.timer {
+  margin-bottom: 20px;
+}
+
+.current {
+  border-bottom: solid 1px black;
+}
