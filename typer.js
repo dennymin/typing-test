@@ -121,7 +121,7 @@ const typingFinished = () => {
   $Stats.classList.toggle("hidden", false);
   $TimeStat.textContent = $TimeStat.textContent + "\t" + timer.minutes.toString() + " minutes " + (timer.seconds.toString().length < 2 ? "0" + timer.seconds.toString() : timer.seconds.toString()) + " seconds"
   const correctPercentage = ((timer.message.length - timer.incorrectstrokes) / timer.message.length) * 100;
-  $CorrectStat.textContent += "\t" + correctPercentage.toString()[0] + correctPercentage.toString()[1] + "%";
+  $CorrectStat.textContent += "\t" + correctPercentage.toString()[0] + correctPercentage.toString()[1] + (correctPercentage.toString()[2] === "0" ? "0" : "" )+ "%";
   $IncorrectStat.textContent += "\t" + timer.incorrectstrokes.toString() + " mistypes"
 }
 
