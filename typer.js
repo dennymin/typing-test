@@ -2,11 +2,19 @@ const $PlayButton = document.querySelector(".play-button");
 const $StopButton = document.querySelector(".stop-button");
 const $Timer = document.querySelector(".timer");
 const $Typespace = document.querySelector(".typespace")
+const $Stats = document.querySelector("#stats");
+const $TimeStat = document.querySelector("#time-stat");
+const $CorrectStat = document.querySelector("#correct-stat");
+const $IncorrectStat = document.querySelector("#incorrect-stat");
 
 let timer = {
   seconds: 0,
   minutes: 0,
   status: false,
+  index: 0,
+  letters: $Typespace.children,
+  totalstrokes: 0,
+  incorrectstrokes: 0,
   message: ""
 }
 
@@ -34,50 +42,114 @@ const spanMaker = (char) => {
   return $NewSpanElement;
 }
 
-const pressPlay = (Event) => {
-  Event.preventDefault();
-  if (timer.status === false) {
-    console.log("Timer started!")
-    fetch("https://uselessfacts.jsph.pl/random.json?language=en", {
-      method: "Get"
-    })
+const setText = () => {
+  console.log("Timer started!")
+  fetch("https://uselessfacts.jsph.pl/random.json?language=en", {
+    method: "Get"
+  })
     .then(response => response.json())
-    .then(data=> {
+    .then(data => {
       console.log(data.text);
-      timer.message = data.text
+      const tempString = data.text.trim();
+      const tildaRemove = tempString.replaceAll("`", "'");
+      const doubleSpaceRemove = tildaRemove.replaceAll("  ", " ");
+      timer.message = doubleSpaceRemove;
       for (let i = 0; i < timer.message.length; i++) {
         $Typespace.appendChild(spanMaker(timer.message[i]))
       }
+      timer.letters[timer.index].className = "current";
     });
-    timer.ticking = setInterval(timeCounter, 1000)
+  timer.ticking = setInterval(timeCounter, 1000)
+}
+
+const pressPlay = (Event) => {
+  Event.preventDefault();
+  if (timer.status === false && $PlayButton.textContent === "Play") {
+    setText();
+  }
+  if (timer.status === false && $PlayButton.textContent === "Again?") {
+    cleanoutTimerObj();
+    $Stats.classList.toggle("hidden", true);
+    setText();
   }
 }
 
 const pressPause = (Event) => {
   Event.preventDefault();
-  if (timer.status === true) {
+  if (timer.status === true && $StopButton.textContent === "Pause") {
     clearInterval(timer.ticking);
     timer.status = false;
     console.log("Timer paused!")
+    $PlayButton.textContent = "Resume?";
+    $StopButton.textContent = "Reset?";
+  }
+  else if (timer.status === false && $StopButton.textContent === "Reset?") {
+    cleanoutTimerObj();
+    $PlayButton.textContent = "Play";
+    $StopButton.textContent = "Pause";
+    console.log("Timer reset!")
   }
 }
 
-const pressReset = (Event) => {
-  Event.preventDefault();
-  if (timer.status === false) {
-    clearInterval(timer.ticking);
-    timer.status = false;
-    timer.seconds = 0;
-    timer.minutes = 0;
-    console.log("Timer reset!")
+const cleanoutTimerObj = () => {
+  removeAllChildren($Typespace);
+  clearInterval(timer.ticking);
+  removeAllChildren($Typespace);
+  timer = {
+    seconds: 0,
+    minutes: 0,
+    status: false,
+    index: 0,
+    letters: $Typespace.children,
+    totalstrokes: 0,
+    incorrectstrokes: 0
   }
+  $TimeStat.textContent = "Time:"
+  $CorrectStat.textContent = "Correct Percentage:";
+  $IncorrectStat.textContent = "Incorrect Strokes:";
 }
 
 $PlayButton.addEventListener("click", pressPlay)
 $StopButton.addEventListener("click", pressPause)
 
-const typingListener = (Event) => {
-  console.log(Event.key)
+const typingFinished = () => {
+  console.log("Done!");
+  timer.status = false;
+  clearInterval(timer.ticking);
+  console.log(timer);
+  $PlayButton.textContent = "Again?";
+  $Stats.classList.toggle("hidden", false);
+  $TimeStat.textContent = $TimeStat.textContent + "\t" + timer.minutes.toString() + " minutes " + (timer.seconds.toString().length < 2 ? "0" + timer.seconds.toString() : timer.seconds.toString()) + " seconds"
+  const correctPercentage = ((timer.message.length - timer.incorrectstrokes) / timer.message.length) * 100;
+  $CorrectStat.textContent += "\t" + correctPercentage.toString()[0] + correctPercentage.toString()[1] + "%";
+  $IncorrectStat.textContent += "\t" + timer.incorrectstrokes.toString() + " mistypes"
 }
 
-document.addEventListener("keydown", typingListener)
+const removeAllChildren = (parent) => {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+}
+
+const typingListener = Event => {
+  Event.preventDefault();
+  if (timer.status) {
+    const keyChar = Event.key;
+    if (keyChar === timer.message[timer.index]) {
+      timer.totalstrokes++;
+      timer.letters[timer.index].className = "correctly-typed";
+      timer.index++;
+      if (timer.index < timer.message.length) {
+        timer.letters[timer.index].className = "current"
+      } else {
+        typingFinished();
+      }
+    } else if (keyChar !== timer.message[timer.index] && Event.shiftKey !== true) {
+      timer.totalstrokes++;
+      timer.incorrectstrokes++;
+      timer.letters[timer.index].className = "incorrectly-typed current";
+    }
+  }
+}
+
+window.addEventListener("keydown", typingListener)
