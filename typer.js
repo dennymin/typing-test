@@ -52,7 +52,7 @@ const setText = () => {
       console.log(data.text);
       const tempString = data.text.trim();
       const tildaRemove = tempString.replaceAll("`", "'");
-      const doubleSpaceRemove = tildaRemove.replaceAll("  ", " ");
+      const doubleSpaceRemove = tildaRemove.replaceAll("\t", " ");
       timer.message = doubleSpaceRemove;
       for (let i = 0; i < timer.message.length; i++) {
         $Typespace.appendChild(spanMaker(timer.message[i]))
@@ -64,21 +64,31 @@ const setText = () => {
 
 const pressPlay = (Event) => {
   Event.preventDefault();
+  console.log(timer.status);
   if (timer.status === false && $PlayButton.textContent === "Play") {
     setText();
   }
-  if (timer.status === false && $PlayButton.textContent === "Again?") {
+  else if (timer.status === false && $PlayButton.textContent === "Again?") {
     cleanoutTimerObj();
     $Stats.classList.toggle("hidden", true);
+    timer.status = true;
     setText();
+  }
+  else if (timer.status === false && $PlayButton.textContent === "Resume?") {
+    console.log("Timer resumed!")
+    $PlayButton.textContent = "Play";
+    $StopButton.textContent = "Pause";
+    timer.ticking = setInterval(timeCounter, 1000)
+    timer.status = true;
   }
 }
 
 const pressPause = (Event) => {
   Event.preventDefault();
+  console.log(timer.status);
   if (timer.status === true && $StopButton.textContent === "Pause") {
-    clearInterval(timer.ticking);
     timer.status = false;
+    clearInterval(timer.ticking);
     console.log("Timer paused!")
     $PlayButton.textContent = "Resume?";
     $StopButton.textContent = "Reset?";
