@@ -52,7 +52,7 @@ const setText = () => {
       console.log(data.text);
       const tempString = data.text.trim();
       const tildaRemove = tempString.replaceAll("`", "'");
-      const doubleSpaceRemove = tildaRemove.replaceAll("  ", " ");
+      const doubleSpaceRemove = tildaRemove.replaceAll("\t", " ");
       timer.message = doubleSpaceRemove;
       for (let i = 0; i < timer.message.length; i++) {
         $Typespace.appendChild(spanMaker(timer.message[i]))
